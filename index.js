@@ -1,15 +1,15 @@
 import puppeteer from 'puppeteer';
 import { createServer } from 'http';
-let listado_tarifas;
+import { readFileSync, writeFileSync, stat } from 'fs';
 
-(async () => {
+const getData = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto('https://tarifaluzhora.es/');
-  listado_tarifas = await listado(page);
   await browser.close();
+  return await listado(page);
   // JSON.stringify(listado_tarifas);
-})();
+};
 
 const listado = page => {
   return new Promise(async (resolve, reject) => {
@@ -80,7 +80,28 @@ const listado = page => {
   });
 };
 
+const getDate = () => {
+  const d = new Date();
+  return d.split('T')[0];
+};
+
+const checkExist = async () => {
+  const exist = stat(`./data/${getDate()}.json`, (err, stats) => {
+    if (err) {
+      return false;
+    }
+    return true;
+  });
+  if (exist) {
+    console.log('ya existe');
+    console.log(`./data/${getDate()}.json`);
+    return JSON.stringify(readFileSync(`./data/${getDate()}.json`));
+  } else {
+    return JSON.stringify(getData());
+  }
+};
+
 createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(listado_tarifas));
+  res.end();
 }).listen(process.env.HTTPS_PORT || 3000);
