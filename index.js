@@ -8,7 +8,7 @@ let listado_tarifas;
   await page.goto('https://tarifaluzhora.es/');
   listado_tarifas = await listado(page);
   await browser.close();
-  console.log(listado_tarifas);
+  return JSON.stringify(listado_tarifas);
 })();
 
 const listado = page => {
@@ -80,7 +80,7 @@ const listado = page => {
   });
 };
 
-createServer((req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(listado_tarifas));
-}).listen(3000);
+// createServer((req, res) => {
+//   res.setHeader('Content-Type', 'application/json');
+//   res.end(JSON.stringify(listado_tarifas));
+// }).listen(3000);
