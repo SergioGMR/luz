@@ -82,6 +82,7 @@ const listado = page => {
 
 createServer((req, res) => {
   getData();
+  console.log(listado_tarifas)
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(listado_tarifas));
 }).listen(process.env.HTTPS_PORT || 3000);
