@@ -1,14 +1,13 @@
 import puppeteer from 'puppeteer';
 import { createServer } from 'http';
-import { readFileSync, writeFileSync, stat } from 'fs';
 
 const getData = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto('https://tarifaluzhora.es/');
+  const data = await listado(page);
   await browser.close();
-  return await listado(page);
-  // JSON.stringify(listado_tarifas);
+  return JSON.stringify(data);
 };
 
 const listado = page => {
@@ -80,28 +79,42 @@ const listado = page => {
   });
 };
 
-const getDate = () => {
-  const d = new Date();
-  return d.split('T')[0];
-};
+// const getDate = () => {
+//   const d = new Date();
+//   return d.split('T')[0];
+// };
 
-const checkExist = async () => {
-  const exist = stat(`./data/${getDate()}.json`, (err, stats) => {
-    if (err) {
-      return false;
-    }
-    return true;
-  });
-  if (exist) {
-    console.log('ya existe');
-    console.log(`./data/${getDate()}.json`);
-    return JSON.stringify(readFileSync(`./data/${getDate()}.json`));
-  } else {
-    return JSON.stringify(getData());
-  }
-};
+// const checkExist = async () => {
+//   const exist = stat(`./data/${getDate()}.json`, (err, stats) => {
+//     if (err) {
+//       return false;
+//     }
+//     return true;
+//   });
+//   if (exist) {
+//     console.log('ya existe');
+//     console.log(`./data/${getDate()}.json`);
+//     return JSON.stringify(readFileSync(`./data/${getDate()}.json`));
+//   } else {
+//     return JSON.stringify(getData());
+//   }
+// };
 
-createServer((req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.end();
-}).listen(process.env.HTTPS_PORT || 3000);
+// create a nodjs server to serve listen on port the data to the client from the async function of getData
+const server = createServer((req, res) => {
+  getData()
+    .then(data => {
+      console.log(data);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(data);
+    })
+    .catch(err => {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(err));
+    });
+});
+
+// run de server
+server.listen(process.env.HTTPS_PORT || 3000, () => {
+  console.log(`server running on port ${process.env.HTTPS_PORT || 3000}`);
+});
