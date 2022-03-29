@@ -1,5 +1,10 @@
 import puppeteer from 'puppeteer';
 import { createServer } from 'http';
+import { MemoryCache } from 'cache-list';
+
+const cache = new MemoryCache({
+  defaultDuration: 600 // 10 min
+});
 
 const getData = async () => {
   const browser = await puppeteer.launch();
@@ -79,32 +84,42 @@ const listado = page => {
   });
 };
 
-// const getDate = () => {
-//   const d = new Date();
-//   return d.split('T')[0];
-// };
+const getDate = () => {
+  const d = new Date();
+  let date = d.toLocaleDateString('es-ES');
+  date = date.split('/');
+  date = `${date[0]} del ${date[1]} de ${date[2]}`;
+  return date;
+};
 
-// const checkExist = async () => {
-//   const exist = stat(`./data/${getDate()}.json`, (err, stats) => {
-//     if (err) {
-//       return false;
-//     }
-//     return true;
-//   });
-//   if (exist) {
-//     console.log('ya existe');
-//     console.log(`./data/${getDate()}.json`);
-//     return JSON.stringify(readFileSync(`./data/${getDate()}.json`));
-//   } else {
-//     return JSON.stringify(getData());
-//   }
-// };
-
-// create a nodjs server to serve listen on port the data to the client from the async function of getData
-const server = createServer((req, res) => {
+const checkExist = () => {
+  const date = getDate();
+  if (cache.get('date') === date) {
+    return true;
+  }
   getData()
     .then(data => {
-      console.log(data);
+      cache.set('date', date);
+      cache.set('data', data);
+    })
+    .catch(error => {
+      console.log(error);
+    })
+    .then(() => {
+      return false;
+    });
+};
+
+const server = createServer((req, res) => {
+  if (checkExist()) {
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    });
+    res.end(cache.get('data'));
+    return;
+  }
+  getData()
+    .then(data => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(data);
     })
