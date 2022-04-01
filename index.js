@@ -98,37 +98,34 @@ const getDate = () => {
   return date;
 };
 
-const checkExist = () => {
-  const date = getDate();
+const checkExist = async () => {
+  date = getDate();
   if (cache.get('date') === date) {
     return true;
+  } else {
+    cache.set('date', date);
+    return false;
   }
-  getData()
-    .then(data => {
-      cache.set('date', date);
-      cache.set('data', data);
-    })
-    .catch(error => {
-      console.log(error);
-    })
-    .then(() => {
-      return false;
-    });
 };
 
 app.get('/', (req, res) => {
-  if (checkExist()) {
-    console.log('Servicio de datos cargados desde cache');
-    console.log(cache.get('data'));
-    res.status(200).json(cache.get('data'));
-    return;
-  }
-  getData()
-    .then(data => {
-      res.status(200).json(data);
+  checkExist()
+    .then(exist => {
+      if (exist) {
+        res.status(200).send(cache.get('data'));
+      } else {
+        getData()
+          .then(data => {
+            cache.set('data', data);
+            res.status(200).json(cache.get('data'));
+          })
+          .catch(error => {
+            res.status(500).end(JSON.stringify(error));
+          });
+      }
     })
-    .catch(err => {
-      res.status(500).end(JSON.stringify(err));
+    .catch(error => {
+      res.status(500).end(JSON.stringify(error));
     });
 });
 
