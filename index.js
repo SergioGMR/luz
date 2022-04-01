@@ -130,6 +130,7 @@ const server = createServer((req, res) => {
 });
 
 // run de server
-server.listen(process.env.HTTPS_PORT || 3000, () => {
-  console.log(`server running on port ${process.env.HTTPS_PORT || 3000}`);
-});
+(async () =>
+  server.listen(process.env.HTTPS_PORT || 3000, () => {
+    console.log(`server running on port ${process.env.HTTPS_PORT || 3000}`);
+  }))();
