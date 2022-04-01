@@ -112,12 +112,15 @@ app.get('/', (req, res) => {
   checkExist()
     .then(exist => {
       if (exist) {
+        console.log(cache.get('data'));
         res.status(200).send(cache.get('data'));
       } else {
+        console.info('No hay datos');
         getData()
           .then(data => {
+            console.info(data);
             cache.set('data', data);
-            res.status(200).json(cache.get('data'));
+            res.status(200).json(data);
           })
           .catch(error => {
             res.status(500).end(JSON.stringify(error));
