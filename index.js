@@ -1,6 +1,7 @@
+const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer');
 // import { createServer } from 'http';
-const {MemoryCache} = require('cache-list');
+const { MemoryCache } = require('cache-list');
 const express = require('express');
 const app = express();
 
@@ -9,7 +10,9 @@ const cache = new MemoryCache({
 });
 
 const getData = async () => {
-  const browser = await puppeteer.launch();
+  const browser = await chromium.puppeteer.launch({
+    executablePath: await chromium.executablePath
+  });
   const page = await browser.newPage();
   await page.goto('https://tarifaluzhora.es/');
   const data = await listado(page);
@@ -115,9 +118,9 @@ const checkExist = () => {
 
 app.get('/', (req, res) => {
   if (checkExist()) {
-    res.json(cache.get('data'));
     console.log('Servicio de datos cargados desde cache');
     console.log(cache.get('data'));
+    res.status(200).json(cache.get('data'));
     return;
   }
   getData()
