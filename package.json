@@ -10,12 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cache-list": "^0.1.9",
-    "express": "^4.17.3",
-    "chrome-aws-lambda": "^10.1.0",
-    "puppeteer-core": "^13.5.2"
+    "cache-list": "0.1.9",
+    "express": "4.17.3",
+    "chrome-aws-lambda": "10.1.0",
+    "puppeteer-core": "10.1.0"
   },
   "devDependencies": {
-    "puppeteer": "^13.5.2"
+    "puppeteer": "10.1.0"
   }
 }
