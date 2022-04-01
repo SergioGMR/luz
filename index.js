@@ -1,7 +1,7 @@
-import puppeteer from 'puppeteer';
+const puppeteer = require('puppeteer');
 // import { createServer } from 'http';
-import { MemoryCache } from 'cache-list';
-import express from 'express';
+const {MemoryCache} = require('cache-list');
+const express = require('express');
 const app = express();
 
 const cache = new MemoryCache({
@@ -137,4 +137,5 @@ app
     console.error(err);
   });
 
-export default app;
+// Export the Express API
+module.exports = app;
