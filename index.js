@@ -1,6 +1,8 @@
 import puppeteer from 'puppeteer';
-import { createServer } from 'http';
+// import { createServer } from 'http';
 import { MemoryCache } from 'cache-list';
+import express from 'express';
+const app = express();
 
 const cache = new MemoryCache({
   defaultDuration: 600 // 10 min
@@ -12,7 +14,8 @@ const getData = async () => {
   await page.goto('https://tarifaluzhora.es/');
   const data = await listado(page);
   await browser.close();
-  return JSON.stringify(data);
+  // return JSON.stringify(data);
+  return data;
 };
 
 const listado = page => {
@@ -110,26 +113,28 @@ const checkExist = () => {
     });
 };
 
-const server = createServer((req, res) => {
+app.get('/api', (req, res) => {
   if (checkExist()) {
-    res.writeHead(200, {
-      'Content-Type': 'application/json'
-    });
-    res.end(cache.get('data'));
+    res.json(cache.get('data'));
+    console.log('Servicio de datos cargados desde cache');
+    console.log(cache.get('data'));
     return;
   }
   getData()
     .then(data => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(data);
+      res.status(200).json(data);
     })
     .catch(err => {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(err));
+      res.status(500).end(JSON.stringify(err));
     });
 });
 
-// run de server
-server.listen(process.env.HTTPS_PORT || 3000, () => {
-  console.log(`server running on port ${process.env.HTTPS_PORT || 3000}`);
-});
+app
+  .listen(process.env.HTTPS_PORT || 3000, () => {
+    console.info(`Escuchando en el puerto: ${process.env.HTTPS_PORT || 3000}`);
+  })
+  .on('error', err => {
+    console.error(err);
+  });
+
+export default app;

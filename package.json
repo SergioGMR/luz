@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "cache-list": "^0.1.9",
+    "express": "^4.17.3",
     "puppeteer": "^13.5.1"
   }
 }
