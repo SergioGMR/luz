@@ -1,6 +1,5 @@
-import chromium from 'chrome-aws-lambda';
-import puppeteer from 'puppeteer';
-// import { createServer } from 'http';
+import { chromium } from 'playwright';
+// const { createServer } from 'http';
 import { MemoryCache } from 'cache-list';
 import express from 'express';
 const app = express();
@@ -11,7 +10,7 @@ const cache = new MemoryCache({
 });
 
 const getData = async () => {
-  const browser = await puppeteer.launch();
+const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.goto('https://tarifaluzhora.es/');
   const data = await listado(page);
