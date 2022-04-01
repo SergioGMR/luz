@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 import { MemoryCache } from 'cache-list';
 import express from 'express';
 const app = express();
-const port = process.env.HTTPS_PORT || 3000;
+const port = process.env.PORT || 443;
 
 const cache = new MemoryCache({
   defaultDuration: 600 // 10 min
