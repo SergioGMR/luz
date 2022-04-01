@@ -113,7 +113,7 @@ const checkExist = () => {
     });
 };
 
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   if (checkExist()) {
     res.json(cache.get('data'));
     console.log('Servicio de datos cargados desde cache');
