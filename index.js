@@ -1,18 +1,17 @@
-const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer');
+import chromium from 'chrome-aws-lambda';
+import puppeteer from 'puppeteer';
 // import { createServer } from 'http';
-const { MemoryCache } = require('cache-list');
-const express = require('express');
+import { MemoryCache } from 'cache-list';
+import express from 'express';
 const app = express();
+const port = process.env.PORT || 3000;
 
 const cache = new MemoryCache({
   defaultDuration: 600 // 10 min
 });
 
 const getData = async () => {
-  const browser = await chromium.puppeteer.launch({
-    executablePath: await chromium.executablePath
-  });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto('https://tarifaluzhora.es/');
   const data = await listado(page);
@@ -99,7 +98,7 @@ const getDate = () => {
 };
 
 const checkExist = async () => {
-  date = getDate();
+  const date = getDate();
   if (cache.get('date') === date) {
     return true;
   } else {
@@ -109,36 +108,31 @@ const checkExist = async () => {
 };
 
 app.get('/', (req, res) => {
+  console.log('Request received');
   checkExist()
     .then(exist => {
       if (exist) {
-        console.log(cache.get('data'));
-        res.status(200).send(cache.get('data'));
+        res.status(200).json(cache.get('data'));
       } else {
-        console.info('No hay datos');
         getData()
           .then(data => {
-            console.info(data);
             cache.set('data', data);
             res.status(200).json(data);
           })
           .catch(error => {
-            res.status(500).end(JSON.stringify(error));
+            res.status(500).json(error);
           });
       }
     })
     .catch(error => {
-      res.status(500).end(JSON.stringify(error));
+      res.status(500).json(error);
     });
 });
 
 app
-  .listen(process.env.HTTPS_PORT || 3000, () => {
-    console.info(`Escuchando en el puerto: ${process.env.HTTPS_PORT || 3000}`);
+  .listen(port, () => {
+    console.info(`Escuchando en el puerto: ${port}`);
   })
   .on('error', err => {
     console.error(err);
   });
-
-// Export the Express API
-module.exports = app;
